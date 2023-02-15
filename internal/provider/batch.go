@@ -8,11 +8,34 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+const (
+	gpuResourceName = "nvidia.com/gpu"
+)
+
 type BatchProvider struct {
+	nodeName           string
+	operatingSystem    string
+	cpu                string
+	memory             string
+	pods               string
+	gpu                string
+	internalIP         string
+	daemonEndpointPort int32
 }
 
-func NewBatchProvider() (*BatchProvider, error) {
-	return &BatchProvider{}, nil
+func NewBatchProvider(ctx context.Context, nodeName, operatingSystem, internalIP string,
+	daemonEndpointPort int32) (*BatchProvider, error) {
+	p := &BatchProvider{}
+
+	p.nodeName = nodeName
+	p.operatingSystem = operatingSystem
+	p.internalIP = internalIP
+	p.daemonEndpointPort = daemonEndpointPort
+
+	if err := p.setupNodeCapacity(ctx); err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 // CreatePod takes a Kubernetes Pod and deploys it within the provider.
@@ -65,9 +88,4 @@ func (p *BatchProvider) GetContainerLogs(ctx context.Context, namespace, podName
 // between in/out/err and the container's stdin/stdout/stderr.
 func (p *BatchProvider) RunInContainer(ctx context.Context, namespace, podName, containerName string, cmd []string, attach api.AttachIO) error {
 	return nil
-}
-
-// ConfigureNode enables a provider to configure the node object that
-// will be used for Kubernetes.
-func (p *BatchProvider) ConfigureNode(context.Context, *corev1.Node) {
 }
