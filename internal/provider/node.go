@@ -120,7 +120,7 @@ func (p *BatchProvider) setupNodeCapacity(ctx context.Context) error {
 	if podsQuota := os.Getenv("BATCH_QUOTA_POD"); podsQuota != "" {
 		p.pods = podsQuota
 	}
-	if gpuQuota := os.Getenv("BATCH_QUOTA_POD"); gpuQuota != "" {
+	if gpuQuota := os.Getenv("BATCH_QUOTA_GPU"); gpuQuota != "" {
 		p.gpu = gpuQuota
 	}
 
